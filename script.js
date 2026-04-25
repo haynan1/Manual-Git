@@ -92,14 +92,14 @@ function configureMarkdown() {
 
 function updatePageMetadata(markdown) {
   const headingMatch = markdown.match(/^#\s+(.+)$/m);
-  const title = headingMatch ? headingMatch[1].trim() : "Documentação";
-  const description = extractPlainText(markdown).slice(0, 180) || "Versão web do README do projeto.";
+  const title = headingMatch ? headingMatch[1].trim() : "Dominando o Git";
 
   document.title = `${title} | README`;
   projectTitleEl.textContent = title;
-  projectSubtitleEl.textContent = "README renderizado como site estático";
+  projectSubtitleEl.textContent = "Manual Git em formato web";
   heroTitleEl.textContent = title;
-  heroDescriptionEl.textContent = description;
+  heroDescriptionEl.textContent =
+    "Um guia direto para consultar comandos, entender fluxos de trabalho e evoluir do básico ao avançado sem perder o mapa mental do Git.";
 }
 
 function enhanceRenderedContent() {
@@ -117,7 +117,16 @@ function enhanceRenderedContent() {
   contentEl.querySelectorAll("img").forEach((image) => {
     image.loading = "lazy";
     image.decoding = "async";
+
+    if (image.src.includes("git-scm.com/images/logos")) {
+      image.classList.add("git-logo");
+    }
   });
+
+  const firstHeading = contentEl.querySelector("h1");
+  if (firstHeading) {
+    firstHeading.remove();
+  }
 
   contentEl.querySelectorAll("pre code").forEach((block) => {
     hljs.highlightElement(block);
