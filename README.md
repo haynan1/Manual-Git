@@ -414,7 +414,7 @@ Manual prático de comandos Git, organizado por tema e por nível de domínio. U
 - `git bisect` - Ferramenta para encontrar o commit que introduziu um bug.
 - `git worktree` - Permite trabalhar com múltiplas branches em pastas diferentes.
 
-Haynan, se você dominar nessa ordem, o Git deixa de ser uma sequência de comandos soltos e vira um mapa mental: estado, preparação, commit, histórico, branch, remoto, correção e colaboração. É assim que você deixa de “usar Git” e começa a governar a linha do tempo do seu código.
+Se você dominar nessa ordem, o Git deixa de ser uma sequência de comandos soltos e vira um mapa mental: estado, preparação, commit, histórico, branch, remoto, correção e colaboração. É assim que você deixa de “usar Git” e começa a governar a linha do tempo do seu código.
 
 Sim, existem muitos mais comandos. O Git é dividido em duas grandes camadas:
 
