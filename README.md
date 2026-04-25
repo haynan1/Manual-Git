@@ -1,46 +1,68 @@
-DOMINANDO GIT
+## DOMINANDO O GIT
 
 
-1. Verificação e primeiros contatos com Git
-git --version
-Mostra a versão do Git instalada no computador.
-git help
-Mostra a ajuda geral do Git.
-git help <comando>
-Abre a documentação de um comando específico.
-git help commit
-Abre a ajuda específica do comando commit.
-git <comando> --help
-Outra forma de abrir a ajuda de um comando.
-git -h
-Mostra uma ajuda rápida no terminal.
-________________________________________
-2. Configuração inicial do Git
-git config --global user.name "Seu Nome"
-Define o nome que aparecerá como autor dos commits.
-git config --global user.email "seuemail@exemplo.com"
-Define o e-mail associado aos commits.
-git config --global --list
-Lista as configurações globais do Git.
-git config --list
-Lista todas as configurações ativas do Git.
-git config --local --list
-Lista as configurações específicas do repositório atual.
-git config --system --list
-Lista as configurações do Git no nível do sistema.
-git config --list --show-origin
-Mostra as configurações e de qual arquivo cada uma veio.
-git config --global core.editor "code --wait"
-Define o VS Code como editor padrão do Git.
-git config --global init.defaultBranch main
-Define main como nome padrão da branch inicial em novos repositórios.
-git config --global core.autocrlf true
-Configuração comum no Windows para lidar com quebras de linha.
-git config --global core.autocrlf input
-Configuração comum no Linux/macOS para lidar com quebras de linha.
-git config --global credential.helper store
-Salva as credenciais localmente para não pedir token/senha toda vez.
-________________________________________
+> #### 1. Verificação e primeiros contatos com Git
+> 
+> git --version
+> - Mostra a versão do Git instalada no computador.
+> 
+> git help
+> - Mostra a ajuda geral do Git.
+> 
+> git help <comando>
+> - Abre a documentação de um comando específico.
+> 
+> git help commit
+> - Abre a ajuda específica do comando commit.
+> 
+> git <comando> --help
+> - Outra forma de abrir a ajuda de um comando.
+> 
+> git -h
+> - Mostra uma ajuda rápida no terminal.
+
+***
+
+> #### 2. Configuração inicial do Git
+> 
+> git config --global user.name "Seu Nome"
+> - Define o nome que aparecerá como autor dos commits.
+> 
+> git config --global user.email "seuemail@exemplo.com"
+> - Define o e-mail associado aos commits.
+> 
+> git config --global --list
+> - Lista as configurações globais do Git.
+> 
+> git config --list
+> - Lista todas as configurações ativas do Git.
+> 
+> git config --local --list
+> - Lista as configurações específicas do repositório atual.
+> 
+> git config --system --list
+> - Lista as configurações do Git no nível do sistema.
+> 
+> git config --list --show-origin
+> - Mostra as configurações e de qual arquivo cada uma veio.
+> 
+> git config --global core.editor "code --wait"
+> - Define o VS Code como editor padrão do Git.
+> 
+> git config --global init.defaultBranch main
+> - Define main como nome padrão da branch inicial em novos repositórios.
+> 
+> git config --global core.autocrlf true
+> - Configuração comum no Windows para lidar com quebras de linha.
+> 
+> git config --global core.autocrlf input
+> - Configuração comum no Linux/macOS para lidar com quebras de linha.
+> 
+> git config --global credential.helper store
+> - Salva as credenciais localmente para não pedir token/senha toda vez.
+
+***
+
 3. Criando atalhos no Git
 git config --global alias.st status
 Cria o atalho git st para git status.
