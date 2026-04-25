@@ -93,12 +93,18 @@ samp {
 }
 
 .site-header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 10;
   backdrop-filter: blur(18px);
   background: color-mix(in srgb, var(--surface) 88%, transparent);
   border-bottom: 1px solid var(--border);
+}
+
+main {
+  padding-top: var(--header-height);
 }
 
 .header-inner {
@@ -460,6 +466,7 @@ samp {
 
 @media (max-width: 720px) {
   :root {
+    --header-height: 144px;
     --page-gutter: 1rem;
   }
 
