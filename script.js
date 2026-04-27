@@ -9,8 +9,6 @@ const tocToggleEl = document.getElementById("toc-toggle");
 const tocListEl = document.getElementById("toc-list");
 const searchInputEl = document.getElementById("manual-search");
 const clearSearchEl = document.getElementById("clear-search");
-const sectionCountEl = document.getElementById("section-count");
-const commandCountEl = document.getElementById("command-count");
 
 const README_PATH = "./README.md";
 const THEME_KEY = "git-manual-theme";
@@ -236,14 +234,6 @@ function observeActiveSections() {
   headingRecords.forEach((record) => activeObserver.observe(record.element));
 }
 
-function updateMetrics(markdown) {
-  const moduleCount = headingRecords.filter((record) => record.depth === 2).length;
-  const codeCount = (markdown.match(/^```/gm) || []).length / 2;
-
-  sectionCountEl.textContent = String(moduleCount);
-  commandCountEl.textContent = String(Math.floor(codeCount));
-}
-
 function normalizeSearch(value) {
   return value
     .toLowerCase()
@@ -355,7 +345,6 @@ function enhanceRenderedContent(markdown) {
   collectHeadings();
   buildToc();
   observeActiveSections();
-  updateMetrics(markdown);
 }
 
 function showError(message) {

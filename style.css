@@ -266,8 +266,7 @@ samp {
 .hero-side {
   min-width: 0;
   display: grid;
-  grid-template-rows: minmax(12rem, 1fr) auto;
-  gap: 0.75rem;
+  align-items: stretch;
 }
 
 .git-card {
@@ -290,39 +289,6 @@ samp {
   padding: 0.9rem;
   border-radius: var(--radius);
   background: #ffffff;
-}
-
-.hero-panel {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
-
-.hero-panel > div {
-  min-width: 0;
-  padding: 1rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--shadow);
-}
-
-.metric-value,
-.metric-label {
-  display: block;
-}
-
-.metric-value {
-  color: var(--heading);
-  font-size: 1.65rem;
-  line-height: 1;
-  font-weight: 800;
-}
-
-.metric-label {
-  margin-top: 0.4rem;
-  color: var(--text-soft);
-  font-size: 0.8rem;
 }
 
 .manual-layout {
@@ -682,14 +648,6 @@ samp {
     grid-template-columns: 1fr;
   }
 
-  .hero-side {
-    grid-template-rows: auto;
-  }
-
-  .hero-panel {
-    max-width: 34rem;
-  }
-
   .manual-layout {
     grid-template-columns: 1fr;
   }
@@ -744,10 +702,6 @@ samp {
 
   .hero h1 {
     font-size: clamp(2.05rem, 12vw, 3.1rem);
-  }
-
-  .hero-panel {
-    grid-template-columns: 1fr;
   }
 
   .content-panel {
