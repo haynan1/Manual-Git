@@ -5,10 +5,19 @@ const projectSubtitleEl = document.getElementById("project-subtitle");
 const heroTitleEl = document.getElementById("hero-title");
 const heroDescriptionEl = document.getElementById("hero-description");
 const themeToggleEl = document.getElementById("theme-toggle");
+const tocToggleEl = document.getElementById("toc-toggle");
+const tocListEl = document.getElementById("toc-list");
+const searchInputEl = document.getElementById("manual-search");
+const clearSearchEl = document.getElementById("clear-search");
+const sectionCountEl = document.getElementById("section-count");
+const commandCountEl = document.getElementById("command-count");
 
 const README_PATH = "./README.md";
-const THEME_KEY = "readme-site-theme";
+const THEME_KEY = "git-manual-theme";
 const themeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+let headingRecords = [];
+let activeObserver = null;
 
 function slugify(value) {
   return value
@@ -20,13 +29,35 @@ function slugify(value) {
     .replace(/\s+/g, "-");
 }
 
-function extractPlainText(markdown) {
-  return markdown
-    .replace(/<[^>]*>/g, " ")
-    .replace(/[`*_>#~\-]/g, " ")
-    .replace(/\[[^\]]+\]\(([^)]+)\)/g, "$1")
+function plainTextFromTokens(tokens) {
+  return tokens
+    .map((token) => {
+      if (token.text) return token.text;
+      if (token.tokens) return plainTextFromTokens(token.tokens);
+      return "";
+    })
+    .join(" ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function extractIntro(markdown) {
+  const lines = markdown.split(/\r?\n/);
+  const firstParagraph = [];
+  let passedTitle = false;
+
+  for (const line of lines) {
+    if (!passedTitle && line.startsWith("# ")) {
+      passedTitle = true;
+      continue;
+    }
+
+    if (!passedTitle) continue;
+    if (!line.trim() && firstParagraph.length) break;
+    if (line.trim()) firstParagraph.push(line.trim());
+  }
+
+  return firstParagraph.join(" ");
 }
 
 function getSystemTheme() {
@@ -45,7 +76,7 @@ function setStoredTheme(theme) {
   try {
     localStorage.setItem(THEME_KEY, theme);
   } catch {
-    // Ignore storage failures so the toggle still works in restricted contexts.
+    // Local storage can be unavailable in restricted browser contexts.
   }
 }
 
@@ -57,8 +88,7 @@ function applyTheme(theme) {
 }
 
 function initializeTheme() {
-  const savedTheme = getStoredTheme();
-  applyTheme(savedTheme || getSystemTheme());
+  applyTheme(getStoredTheme() || getSystemTheme());
 }
 
 function configureMarkdown() {
@@ -67,7 +97,7 @@ function configureMarkdown() {
 
   renderer.heading = ({ tokens, depth }) => {
     const text = marked.Parser.parseInline(tokens);
-    const plainText = tokens.map((token) => token.text || "").join(" ").trim() || text.replace(/<[^>]+>/g, "");
+    const plainText = plainTextFromTokens(tokens) || text.replace(/<[^>]+>/g, "");
     const baseSlug = slugify(plainText || "secao");
     const count = slugCounts.get(baseSlug) || 0;
     slugCounts.set(baseSlug, count + 1);
@@ -93,22 +123,23 @@ function configureMarkdown() {
 function updatePageMetadata(markdown) {
   const headingMatch = markdown.match(/^#\s+(.+)$/m);
   const title = headingMatch ? headingMatch[1].trim() : "Dominando o Git";
+  const intro = extractIntro(markdown);
 
-  document.title = `${title} | README`;
+  document.title = `${title} | Manual Git`;
   projectTitleEl.textContent = title;
   projectSubtitleEl.textContent = "Manual Git em formato web";
   heroTitleEl.textContent = title;
   heroDescriptionEl.textContent =
+    intro ||
     "Um guia direto para consultar comandos, entender fluxos de trabalho e evoluir do básico ao avançado sem perder o mapa mental do Git.";
 }
 
-function enhanceRenderedContent() {
+function enhanceLinksAndImages() {
   contentEl.querySelectorAll("a[href]").forEach((link) => {
     const href = link.getAttribute("href");
     if (!href) return;
 
-    const isExternal = /^https?:\/\//i.test(href);
-    if (isExternal) {
+    if (/^https?:\/\//i.test(href)) {
       link.target = "_blank";
       link.rel = "noreferrer noopener";
     }
@@ -122,15 +153,209 @@ function enhanceRenderedContent() {
       image.classList.add("git-logo");
     }
   });
+}
 
-  const firstHeading = contentEl.querySelector("h1");
-  if (firstHeading) {
-    firstHeading.remove();
+function addCopyButtons() {
+  contentEl.querySelectorAll("pre").forEach((pre) => {
+    const code = pre.querySelector("code");
+    if (!code) return;
+
+    const button = document.createElement("button");
+    button.className = "copy-button";
+    button.type = "button";
+    button.textContent = "Copiar";
+    button.setAttribute("aria-label", "Copiar comando");
+
+    button.addEventListener("click", async () => {
+      const text = code.innerText.trim();
+      try {
+        await navigator.clipboard.writeText(text);
+        button.textContent = "Copiado";
+        window.setTimeout(() => {
+          button.textContent = "Copiar";
+        }, 1400);
+      } catch {
+        button.textContent = "Erro";
+        window.setTimeout(() => {
+          button.textContent = "Copiar";
+        }, 1400);
+      }
+    });
+
+    pre.appendChild(button);
+  });
+}
+
+function collectHeadings() {
+  headingRecords = [...contentEl.querySelectorAll("h2, h3")].map((heading) => ({
+    id: heading.id,
+    title: heading.textContent.replace("#", "").trim(),
+    depth: Number(heading.tagName.slice(1)),
+    element: heading,
+  }));
+}
+
+function buildToc() {
+  tocListEl.innerHTML = "";
+
+  headingRecords.forEach((record) => {
+    const link = document.createElement("a");
+    link.href = `#${record.id}`;
+    link.textContent = record.title;
+    link.dataset.target = record.id;
+    link.className = `toc-depth-${record.depth}`;
+    tocListEl.appendChild(link);
+  });
+}
+
+function setActiveTocLink(id) {
+  tocListEl.querySelectorAll("a").forEach((link) => {
+    link.classList.toggle("is-active", link.dataset.target === id);
+  });
+}
+
+function observeActiveSections() {
+  if (activeObserver) activeObserver.disconnect();
+
+  activeObserver = new IntersectionObserver(
+    (entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+      if (visible[0]) {
+        setActiveTocLink(visible[0].target.id);
+      }
+    },
+    {
+      rootMargin: "-20% 0px -65% 0px",
+      threshold: 0,
+    }
+  );
+
+  headingRecords.forEach((record) => activeObserver.observe(record.element));
+}
+
+function updateMetrics(markdown) {
+  const moduleCount = headingRecords.filter((record) => record.depth === 2).length;
+  const codeCount = (markdown.match(/^```/gm) || []).length / 2;
+
+  sectionCountEl.textContent = String(moduleCount);
+  commandCountEl.textContent = String(Math.floor(codeCount));
+}
+
+function normalizeSearch(value) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function getSectionBlocks() {
+  const headings = [...contentEl.querySelectorAll("h2")];
+  return headings.map((heading, index) => {
+    const nodes = [];
+    let node = heading;
+    const nextHeading = headings[index + 1];
+
+    while (node && node !== nextHeading) {
+      nodes.push(node);
+      node = node.nextElementSibling;
+    }
+
+    return {
+      heading,
+      headingIds: nodes
+        .filter((item) => /^H[23]$/.test(item.tagName))
+        .map((item) => item.id),
+      nodes,
+      text: normalizeSearch(nodes.map((item) => item.textContent).join(" ")),
+    };
+  });
+}
+
+function isCompactToc() {
+  return window.matchMedia("(max-width: 980px)").matches;
+}
+
+function setTocOpen(isOpen) {
+  document.body.classList.toggle("toc-open", isOpen);
+  tocToggleEl.setAttribute("aria-expanded", String(isOpen));
+}
+
+function focusTocPanel() {
+  searchInputEl.focus({ preventScroll: true });
+}
+
+function handleTocToggle() {
+  if (isCompactToc()) {
+    const willOpen = !document.body.classList.contains("toc-open");
+    setTocOpen(willOpen);
+
+    if (willOpen) {
+      document.getElementById("manual").scrollIntoView({ block: "start" });
+      window.setTimeout(focusTocPanel, 180);
+    }
+
+    return;
   }
+
+  setTocOpen(false);
+  document.querySelector(".sidebar-panel").scrollIntoView({ block: "nearest" });
+  focusTocPanel();
+}
+
+function applySearchFilter() {
+  const term = normalizeSearch(searchInputEl.value.trim());
+  const blocks = getSectionBlocks();
+
+  clearSearchEl.hidden = !term;
+
+  blocks.forEach((block) => {
+    const matches = !term || block.text.includes(term);
+    block.nodes.forEach((node) => {
+      node.classList.toggle("is-hidden-by-search", !matches);
+    });
+  });
+
+  tocListEl.querySelectorAll("a").forEach((link) => {
+    const block = blocks.find((item) => item.headingIds.includes(link.dataset.target));
+    link.classList.toggle("is-hidden-by-search", Boolean(term && block && !block.text.includes(term)));
+  });
+}
+
+function removeReadmeSummary() {
+  const readmeSummary = [...contentEl.querySelectorAll("h2")].find(
+    (heading) => normalizeSearch(heading.textContent.replace("#", "").trim()) === "sumario"
+  );
+
+  if (!readmeSummary) return;
+
+  let node = readmeSummary.nextElementSibling;
+  while (node && node.tagName !== "H2") {
+    const nextNode = node.nextElementSibling;
+    node.remove();
+    node = nextNode;
+  }
+  readmeSummary.remove();
+}
+
+function enhanceRenderedContent(markdown) {
+  const firstHeading = contentEl.querySelector("h1");
+  if (firstHeading) firstHeading.remove();
+
+  removeReadmeSummary();
 
   contentEl.querySelectorAll("pre code").forEach((block) => {
     hljs.highlightElement(block);
   });
+
+  enhanceLinksAndImages();
+  addCopyButtons();
+  collectHeadings();
+  buildToc();
+  observeActiveSections();
+  updateMetrics(markdown);
 }
 
 function showError(message) {
@@ -156,7 +381,7 @@ async function renderReadme() {
 
     updatePageMetadata(markdown);
     contentEl.innerHTML = marked.parse(markdown);
-    enhanceRenderedContent();
+    enhanceRenderedContent(markdown);
 
     statusEl.hidden = true;
     contentEl.hidden = false;
@@ -164,7 +389,7 @@ async function renderReadme() {
     console.error(error);
     const isFileProtocol = window.location.protocol === "file:";
     const hint = isFileProtocol
-      ? "Seu navegador pode bloquear o carregamento de arquivos locais via fetch. Em GitHub Pages ou qualquer servidor estático, tudo funcionará normalmente."
+      ? "Seu navegador pode bloquear o carregamento de arquivos locais via fetch. Abra por um servidor local, como python -m http.server."
       : "Verifique se o arquivo README.md está na mesma pasta de index.html.";
 
     showError(`${error.message} ${hint}`);
@@ -175,6 +400,28 @@ themeToggleEl.addEventListener("click", () => {
   const nextTheme = document.documentElement.classList.contains("theme-dark") ? "light" : "dark";
   setStoredTheme(nextTheme);
   applyTheme(nextTheme);
+});
+
+tocToggleEl.addEventListener("click", handleTocToggle);
+
+tocListEl.addEventListener("click", (event) => {
+  if (event.target.closest("a") && isCompactToc()) {
+    setTocOpen(false);
+  }
+});
+
+window.addEventListener("resize", () => {
+  if (!isCompactToc()) {
+    setTocOpen(false);
+  }
+});
+
+searchInputEl.addEventListener("input", applySearchFilter);
+
+clearSearchEl.addEventListener("click", () => {
+  searchInputEl.value = "";
+  applySearchFilter();
+  searchInputEl.focus();
 });
 
 function handleSystemThemeChange(event) {

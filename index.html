@@ -18,7 +18,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css"
     />
-    <link rel="stylesheet" href="style.css?v=5" />
+    <link rel="stylesheet" href="style.css?v=6" />
     <link rel="icon" type="image/png" href="https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png" />
     <link rel="apple-touch-icon" href="https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png" />
   </head>
@@ -28,16 +28,21 @@
         <div class="header-inner">
           <a class="brand" href="#top" aria-label="Ir para o topo">
             <span class="brand-mark" aria-hidden="true">
-              <img src="https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png" alt="">
+              <img src="https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png" alt="" />
             </span>
             <span class="brand-copy">
               <strong id="project-title">Dominando o Git</strong>
               <span id="project-subtitle">Manual Git em formato web</span>
             </span>
           </a>
-          <nav class="header-nav" aria-label="Ações rápidas">
-            <a href="#content">Conteúdo</a>
-            <button id="theme-toggle" type="button" aria-label="Alternar tema">
+
+          <nav class="header-actions" aria-label="Ações rápidas">
+            <a href="#manual">Manual</a>
+            <button id="toc-toggle" type="button" aria-controls="toc-list" aria-expanded="false">
+              Índice
+            </button>
+            <a href="#toc">Índice</a>
+            <button id="theme-toggle" type="button" aria-label="Alternar tema" aria-pressed="false">
               Tema
             </button>
           </nav>
@@ -45,19 +50,57 @@
       </header>
 
       <main id="top">
-        <section class="hero">
-          <div class="hero-card">
-            <p class="eyebrow">Manual Git</p>
-            <h1 id="hero-title">Dominando o Git</h1>
-            <p id="hero-description">
-              Um guia direto para consultar comandos, entender fluxos de trabalho e evoluir
-              do básico ao avançado sem perder o mapa mental do Git.
-            </p>
+        <section class="hero" aria-labelledby="hero-title">
+          <div class="hero-inner">
+            <div class="hero-copy">
+              <p class="eyebrow">Manual Git</p>
+              <h1 id="hero-title">Dominando o Git</h1>
+              <p id="hero-description">
+                Um guia direto para consultar comandos, entender fluxos de trabalho e evoluir
+                do básico ao avançado sem perder o mapa mental do Git.
+              </p>
+            </div>
+
+            <div class="hero-side">
+              <figure class="git-card">
+                <img src="https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png" alt="Logotipo do Git" />
+              </figure>
+
+              <div class="hero-panel" aria-label="Resumo do manual">
+                <div>
+                  <span class="metric-value" id="section-count">0</span>
+                  <span class="metric-label">módulos</span>
+                </div>
+                <div>
+                  <span class="metric-value" id="command-count">0</span>
+                  <span class="metric-label">blocos de código</span>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section class="content-wrap">
-          <article class="markdown-card">
+        <section class="manual-layout" id="manual">
+          <aside class="sidebar" aria-label="Navegação do manual">
+            <div class="sidebar-panel">
+              <label class="search-label" for="manual-search">Buscar no manual</label>
+              <input
+                id="manual-search"
+                class="search-input"
+                type="search"
+                placeholder="Ex.: branch, commit, rebase..."
+                autocomplete="off"
+              />
+
+              <div class="toc-header">
+                <h2 id="toc">Índice</h2>
+                <button id="clear-search" type="button" hidden>Limpar</button>
+              </div>
+              <nav id="toc-list" class="toc-list" aria-label="Seções do README"></nav>
+            </div>
+          </aside>
+
+          <article class="content-panel">
             <div id="status" class="status" role="status" aria-live="polite">
               Carregando README...
             </div>
@@ -69,6 +112,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.12/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
-    <script src="script.js?v=4"></script>
+    <script src="script.js?v=5"></script>
   </body>
 </html>
